@@ -15,65 +15,199 @@ class WarehouseApp:
         self.manager = manager
 
         self.root.title("Warehouse Management System")
-        self.root.geometry("850x500")
+        self.root.geometry("950x600")
+        self.root.configure(bg="#F3F4F6")
+
+        # Configure Custom Styles
+        self.style = ttk.Style()
+        self.style.theme_use("clam")
+
+        # Global font settings
+        self.style.configure(".", font=("Segoe UI", 10), background="#F3F4F6", foreground="#1F2937")
+
+        # Treeview styling
+        self.style.configure(
+            "Treeview",
+            rowheight=28,
+            font=("Segoe UI", 10),
+            background="#FFFFFF",
+            fieldbackground="#FFFFFF",
+            foreground="#1F2937",
+            borderwidth=0
+        )
+        self.style.map(
+            "Treeview",
+            background=[("selected", "#EEF2FF")],
+            foreground=[("selected", "#4F46E5")]
+        )
+        self.style.configure(
+            "Treeview.Heading",
+            font=("Segoe UI", 10, "bold"),
+            background="#E5E7EB",
+            foreground="#374151",
+            relief="flat",
+            padding=5
+        )
+
+        # Combobox styling
+        self.style.configure(
+            "TCombobox",
+            arrowcolor="#4F46E5",
+            background="#FFFFFF",
+            fieldbackground="#FFFFFF",
+            darkcolor="#FFFFFF",
+            lightcolor="#FFFFFF"
+        )
+
+        # Build UI layout
+        self.buat_header()
+        
+        # Main Container
+        self.main_container = tk.Frame(self.root, bg="#F3F4F6")
+        self.main_container.pack(fill="both", expand=True, padx=20, pady=(10, 20))
+
+        # Split into Left Pane (Form) and Right Pane (Table)
+        self.left_pane = tk.Frame(self.main_container, bg="#F3F4F6")
+        self.left_pane.pack(side="left", fill="both", padx=(0, 10))
+
+        self.right_pane = tk.Frame(self.main_container, bg="#F3F4F6")
+        self.right_pane.pack(side="right", fill="both", expand=True, padx=(10, 0))
 
         self.buat_form()
         self.buat_tabel()
 
         self.refresh_table()
 
+    def buat_header(self):
+        header_frame = tk.Frame(self.root, bg="#4F46E5", height=60)
+        header_frame.pack(fill="x", side="top")
+        
+        # Label Title
+        title_label = tk.Label(
+            header_frame,
+            text=" 📦  Warehouse Inventory System",
+            font=("Segoe UI", 16, "bold"),
+            fg="#FFFFFF",
+            bg="#4F46E5",
+            pady=15
+        )
+        title_label.pack(side="left", padx=20)
+
     def buat_form(self):
+        # Card container
+        form_card = tk.Frame(self.left_pane, bg="#FFFFFF", bd=1, relief="flat", highlightbackground="#E5E7EB", highlightthickness=1)
+        form_card.pack(fill="both", expand=True, ipady=15)
 
-        frame = tk.Frame(self.root)
-        frame.pack(pady=10)
+        # Section Title
+        tk.Label(
+            form_card,
+            text="Detail Barang",
+            font=("Segoe UI", 12, "bold"),
+            fg="#1F2937",
+            bg="#FFFFFF"
+        ).pack(anchor="w", padx=20, pady=(20, 15))
 
-        tk.Label(frame, text="Kode").grid(row=0, column=0)
-        self.kode_entry = tk.Entry(frame)
-        self.kode_entry.grid(row=0, column=1)
+        # Helper to create styled labels and entries
+        def create_field(parent, label_text):
+            frame = tk.Frame(parent, bg="#FFFFFF")
+            frame.pack(fill="x", padx=20, pady=6)
 
-        tk.Label(frame, text="Nama").grid(row=1, column=0)
-        self.nama_entry = tk.Entry(frame)
-        self.nama_entry.grid(row=1, column=1)
+            lbl = tk.Label(
+                frame,
+                text=label_text,
+                font=("Segoe UI", 9, "bold"),
+                fg="#4B5563",
+                bg="#FFFFFF"
+            )
+            lbl.pack(anchor="w", pady=(0, 4))
 
-        tk.Label(frame, text="Stok").grid(row=2, column=0)
-        self.stok_entry = tk.Entry(frame)
-        self.stok_entry.grid(row=2, column=1)
+            entry = tk.Entry(
+                frame,
+                font=("Segoe UI", 10),
+                bg="#F9FAFB",
+                fg="#1F2937",
+                relief="flat",
+                highlightthickness=1,
+                highlightbackground="#D1D5DB",
+                highlightcolor="#4F46E5",
+                insertbackground="#1F2937"
+            )
+            entry.pack(fill="x", ipady=6)
+            return entry
 
-        tk.Label(frame, text="Kategori").grid(row=3, column=0)
+        self.kode_entry = create_field(form_card, "Kode Barang")
+        self.nama_entry = create_field(form_card, "Nama Barang")
+        self.stok_entry = create_field(form_card, "Stok Barang")
+
+        # Category field (Combobox)
+        cat_frame = tk.Frame(form_card, bg="#FFFFFF")
+        cat_frame.pack(fill="x", padx=20, pady=6)
+
+        tk.Label(
+            cat_frame,
+            text="Kategori",
+            font=("Segoe UI", 9, "bold"),
+            fg="#4B5563",
+            bg="#FFFFFF"
+        ).pack(anchor="w", pady=(0, 4))
 
         self.kategori = ttk.Combobox(
-            frame,
-            values=["Elektronik", "Makanan"]
+            cat_frame,
+            values=["Elektronik", "Makanan"],
+            state="readonly",
+            font=("Segoe UI", 10)
         )
-
-        self.kategori.grid(row=3, column=1)
+        self.kategori.pack(fill="x", ipady=4)
         self.kategori.current(0)
 
-        tk.Button(
-            frame,
-            text="Tambah",
-            command=self.tambah_barang
-        ).grid(row=4, column=0, pady=10)
+        # Action Buttons frame
+        btn_frame = tk.Frame(form_card, bg="#FFFFFF")
+        btn_frame.pack(fill="x", padx=20, pady=(25, 10))
 
-        tk.Button(
-            frame,
-            text="Update",
-            command=self.update_barang
-        ).grid(row=4, column=1)
+        # Modern Button Helper with hover effects
+        def create_button(parent, text, color, hover_color, command, row, col, columnspan=1):
+            btn = tk.Button(
+                parent,
+                text=text,
+                command=command,
+                font=("Segoe UI", 9, "bold"),
+                fg="#FFFFFF",
+                bg=color,
+                activebackground=hover_color,
+                activeforeground="#FFFFFF",
+                relief="flat",
+                bd=0,
+                cursor="hand2"
+            )
+            btn.grid(row=row, column=col, columnspan=columnspan, sticky="nsew", padx=4, pady=5, ipady=8)
+            
+            # Hover bindings
+            btn.bind("<Enter>", lambda e: btn.configure(bg=hover_color))
+            btn.bind("<Leave>", lambda e: btn.configure(bg=color))
+            return btn
 
-        tk.Button(
-            frame,
-            text="Hapus",
-            command=self.hapus_barang
-        ).grid(row=4, column=2)
+        # 2x2 Grid for buttons
+        btn_frame.columnconfigure(0, weight=1)
+        btn_frame.columnconfigure(1, weight=1)
 
-        tk.Button(
-            frame,
-            text="Cari",
-            command=self.cari_barang
-        ).grid(row=4, column=3)
+        create_button(btn_frame, "Tambah", "#10B981", "#059669", self.tambah_barang, row=0, col=0)
+        create_button(btn_frame, "Update", "#F59E0B", "#D97706", self.update_barang, row=0, col=1)
+        create_button(btn_frame, "Cari", "#3B82F6", "#2563EB", self.cari_barang, row=1, col=0)
+        create_button(btn_frame, "Hapus", "#EF4444", "#DC2626", self.hapus_barang, row=1, col=1)
 
     def buat_tabel(self):
+        # Card container for table
+        table_card = tk.Frame(self.right_pane, bg="#FFFFFF", bd=1, relief="flat", highlightbackground="#E5E7EB", highlightthickness=1)
+        table_card.pack(fill="both", expand=True)
+
+        # Table Header/Title
+        tk.Label(
+            table_card,
+            text="Daftar Inventaris",
+            font=("Segoe UI", 12, "bold"),
+            fg="#1F2937",
+            bg="#FFFFFF"
+        ).pack(anchor="w", padx=20, pady=(20, 15))
 
         kolom = (
             "Kode",
@@ -82,21 +216,36 @@ class WarehouseApp:
             "Kategori"
         )
 
+        # Outer Frame for Treeview & Scrollbar
+        tree_frame = tk.Frame(table_card, bg="#FFFFFF")
+        tree_frame.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+
+        # Create Treeview
         self.tree = ttk.Treeview(
-            self.root,
+            tree_frame,
             columns=kolom,
             show="headings"
         )
 
-        for col in kolom:
-            self.tree.heading(col, text=col)
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
 
-        self.tree.pack(
-            fill="both",
-            expand=True,
-            padx=10,
-            pady=10
-        )
+        # Style layout for scrollbar and tree
+        self.tree.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        # Headings and columns alignment/widths
+        for col in kolom:
+            self.tree.heading(col, text=col, anchor="w")
+            if col == "Kode":
+                self.tree.column(col, width=100, minwidth=80, anchor="w")
+            elif col == "Nama":
+                self.tree.column(col, width=250, minwidth=180, anchor="w")
+            elif col == "Stok":
+                self.tree.column(col, width=100, minwidth=80, anchor="w")
+            elif col == "Kategori":
+                self.tree.column(col, width=150, minwidth=120, anchor="w")
 
         self.tree.bind(
             "<<TreeviewSelect>>",
