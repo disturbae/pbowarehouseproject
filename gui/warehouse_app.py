@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
+from models.barang import Barang
 from models.barang_elektronik import BarangElektronik
 from models.barang_makanan import BarangMakanan
 
@@ -138,7 +139,7 @@ class WarehouseApp:
             if stok_text == "":
                 raise ValueError("Stok tidak boleh kosong")
 
-            if not kode.isdigit():
+            if not Barang.validasi_kode(kode):
                 raise ValueError("Kode barang harus berupa angka")
 
             if not stok_text.isdigit():
@@ -192,7 +193,7 @@ class WarehouseApp:
             if stok_text == "":
                 raise ValueError("Stok tidak boleh kosong")
 
-            if not kode.isdigit():
+            if not Barang.validasi_kode(kode):
                 raise ValueError("Kode barang harus berupa angka")
 
             if not stok_text.isdigit():

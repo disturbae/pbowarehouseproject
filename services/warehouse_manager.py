@@ -1,5 +1,4 @@
-from models.barang_elektronik import BarangElektronik
-from models.barang_makanan import BarangMakanan
+from models.barang import Barang
 
 
 class WarehouseManager:
@@ -14,21 +13,7 @@ class WarehouseManager:
         data = self.storage.load()
 
         for item in data:
-
-            if item["kategori"] == "Elektronik":
-                barang = BarangElektronik(
-                    item["kode"],
-                    item["nama"],
-                    item["stok"]
-                )
-
-            else:
-                barang = BarangMakanan(
-                    item["kode"],
-                    item["nama"],
-                    item["stok"]
-                )
-
+            barang = Barang.from_dict(item)
             self.barang_list.append(barang)
 
     def save_data(self):

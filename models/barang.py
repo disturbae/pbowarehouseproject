@@ -36,3 +36,30 @@ class Barang(ABC):
             "stok": self.__stok,
             "kategori": self.kategori()
         }
+
+    @classmethod
+    def from_dict(cls, data):
+        from models.barang_elektronik import BarangElektronik
+        from models.barang_makanan import BarangMakanan
+
+        kategori = data.get("kategori")
+        if kategori == "Elektronik":
+            return BarangElektronik(
+                data["kode"],
+                data["nama"],
+                data["stok"]
+            )
+        elif kategori == "Makanan":
+            return BarangMakanan(
+                data["kode"],
+                data["nama"],
+                data["stok"]
+            )
+        else:
+            raise ValueError(f"Kategori tidak dikenal: {kategori}")
+
+    @staticmethod
+    def validasi_kode(kode):
+        if not kode:
+            return False
+        return kode.isdigit()
